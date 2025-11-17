@@ -1,6 +1,7 @@
 #ifndef PHLEX_MODEL_LEVEL_HIERARCHY_HPP
 #define PHLEX_MODEL_LEVEL_HIERARCHY_HPP
 
+#include "phlex_model_export.hpp"
 #include "phlex/model/fwd.hpp"
 #include "phlex/model/level_id.hpp"
 
@@ -13,7 +14,7 @@
 
 namespace phlex::experimental {
 
-  class level_hierarchy {
+  class phlex_model_EXPORT level_hierarchy {
   public:
     ~level_hierarchy();
     void increment_count(level_id_ptr const& id);

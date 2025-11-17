@@ -1,6 +1,7 @@
 #ifndef PHLEX_CORE_REGISTRATION_API_HPP
 #define PHLEX_CORE_REGISTRATION_API_HPP
 
+#include "phlex_core_export.hpp"
 #include "phlex/concurrency.hpp"
 #include "phlex/core/concepts.hpp"
 #include "phlex/core/declared_fold.hpp"
@@ -22,7 +23,7 @@ namespace phlex::experimental {
   // Registration API
 
   template <template <typename...> typename HOF, typename AlgorithmBits>
-  class registration_api {
+  class phlex_core_EXPORT registration_api {
     using hof_type = HOF<AlgorithmBits>;
     using NodePtr = typename hof_type::node_ptr_type;
 
@@ -114,7 +115,7 @@ namespace phlex::experimental {
   // Fold API
 
   template <typename AlgorithmBits, typename... InitArgs>
-  class fold_api {
+  class phlex_core_EXPORT fold_api {
     using InitTuple = std::tuple<InitArgs...>;
 
     static constexpr auto N = AlgorithmBits::number_inputs;
@@ -189,7 +190,7 @@ namespace phlex::experimental {
   // Unfold API
 
   template <typename Object, typename Predicate, typename Unfold>
-  class unfold_api {
+  class phlex_core_EXPORT unfold_api {
     using input_parameter_types = constructor_parameter_types<Object>;
 
     static constexpr auto N = std::tuple_size_v<input_parameter_types>;
@@ -262,7 +263,7 @@ namespace phlex::experimental {
   // ====================================================================================
   // Output API
 
-  class output_api {
+  class phlex_core_EXPORT output_api {
   public:
     output_api(registrar<declared_output_ptr> reg,
                configuration const* config,

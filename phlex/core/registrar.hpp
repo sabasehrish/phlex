@@ -1,6 +1,8 @@
 #ifndef PHLEX_CORE_REGISTRAR_HPP
 #define PHLEX_CORE_REGISTRAR_HPP
 
+#include "phlex_core_export.hpp"
+
 // =======================================================================================
 //
 // The registrar class completes the registration of a node at the end of a registration
@@ -62,7 +64,7 @@ namespace phlex::experimental {
   }
 
   template <typename Ptr>
-  class registrar {
+  class phlex_core_EXPORT registrar {
     using Nodes = simple_ptr_map<Ptr>;
     using node_creator = std::function<Ptr(std::vector<std::string>, std::vector<std::string>)>;
 

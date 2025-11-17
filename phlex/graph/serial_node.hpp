@@ -1,6 +1,7 @@
 #ifndef PHLEX_GRAPH_SERIAL_NODE_HPP
 #define PHLEX_GRAPH_SERIAL_NODE_HPP
 
+#include "phlex_graph_export.hpp"
 #include "phlex/graph/serializer_node.hpp"
 #include "phlex/utilities/sized_tuple.hpp"
 
@@ -17,7 +18,7 @@ namespace phlex::experimental {
   }
 
   template <typename Input, std::size_t N>
-  class serial_node : public base<Input> {
+  class phlex_graph_EXPORT serial_node : public base<Input> {
     template <typename Serializers, std::size_t... I>
     void make_edges(std::index_sequence<I...>, Serializers const& serializers)
     {

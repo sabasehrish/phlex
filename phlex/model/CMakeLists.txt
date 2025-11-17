@@ -9,6 +9,7 @@ add_library(
   products.cpp
   qualified_name.cpp
   )
+phlex_apply_symbol_visibility(phlex_model)
 target_include_directories(phlex_model PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(
   phlex_model

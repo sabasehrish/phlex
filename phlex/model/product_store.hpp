@@ -1,6 +1,7 @@
 #ifndef PHLEX_MODEL_PRODUCT_STORE_HPP
 #define PHLEX_MODEL_PRODUCT_STORE_HPP
 
+#include "phlex_model_export.hpp"
 #include "phlex/model/fwd.hpp"
 #include "phlex/model/handle.hpp"
 #include "phlex/model/level_id.hpp"
@@ -14,7 +15,7 @@
 
 namespace phlex::experimental {
 
-  class product_store : public std::enable_shared_from_this<product_store> {
+  class phlex_model_EXPORT product_store : public std::enable_shared_from_this<product_store> {
   public:
     ~product_store();
     static product_store_ptr base();

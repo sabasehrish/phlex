@@ -1,7 +1,7 @@
 #ifndef PHLEX_MODULE_HPP
 #define PHLEX_MODULE_HPP
 
-#include "phlex_int_export.hpp"
+#include "boost/dll/alias.hpp"
 #include "phlex/concurrency.hpp"
 #include "phlex/configuration.hpp"
 #include "phlex/core/graph_proxy.hpp"
@@ -25,15 +25,8 @@ namespace phlex::experimental::detail {
   BOOST_PP_IF(BOOST_PP_EQUAL(NARGS(__VA_ARGS__), 1), CREATE_1ARG, CREATE_2ARGS)(__VA_ARGS__)
 
 #define PHLEX_EXPERIMENTAL_REGISTER_ALGORITHMS(...)                                                \
-  extern "C" {                                                                                     \
-  phlex_int_EXPORT void create_module(phlex::experimental::graph_proxy<phlex::experimental::void_tag>&, \
-                                   phlex::experimental::configuration const&);                     \
-  }                                                                                                \
   static SELECT_SIGNATURE(__VA_ARGS__);                                                            \
-  void create_module(phlex::experimental::graph_proxy<phlex::experimental::void_tag>& proxy,       \
-                     phlex::experimental::configuration const& config)                                 \
-  {                                                                                                \
-    create(proxy, config);                                                                         \
-  }
+  BOOST_DLL_ALIAS(create, create_module)                                                           \
+  SELECT_SIGNATURE(__VA_ARGS__)
 
 #endif // PHLEX_MODULE_HPP

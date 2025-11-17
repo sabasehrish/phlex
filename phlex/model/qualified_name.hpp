@@ -1,13 +1,14 @@
 #ifndef PHLEX_MODEL_QUALIFIED_NAME_HPP
 #define PHLEX_MODEL_QUALIFIED_NAME_HPP
 
+#include "phlex_model_export.hpp"
 #include "phlex/model/algorithm_name.hpp"
 
 #include <string>
 #include <vector>
 
 namespace phlex::experimental {
-  class qualified_name {
+  class phlex_model_EXPORT qualified_name {
   public:
     qualified_name();
     qualified_name(char const* name);
@@ -34,7 +35,7 @@ namespace phlex::experimental {
 
   using qualified_names = std::vector<qualified_name>;
 
-  class to_qualified_name {
+  class phlex_model_EXPORT to_qualified_name {
   public:
     explicit to_qualified_name(algorithm_name const& qualifier) : qualifier_{qualifier} {}
     qualified_name operator()(std::string const& name) const

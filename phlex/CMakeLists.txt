@@ -7,7 +7,6 @@ add_subdirectory(utilities)
 
 # Interface library
 add_library(phlex_int INTERFACE)
-phlex_handle_symbol_visibility(phlex_int)
 target_include_directories(
   phlex_int INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>"
                       "$<INSTALL_INTERFACE:include>"

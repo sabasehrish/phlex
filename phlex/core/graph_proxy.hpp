@@ -1,6 +1,7 @@
 #ifndef PHLEX_CORE_GRAPH_PROXY_HPP
 #define PHLEX_CORE_GRAPH_PROXY_HPP
 
+#include "phlex_core_export.hpp"
 #include "phlex/concurrency.hpp"
 #include "phlex/core/concepts.hpp"
 #include "phlex/core/glue.hpp"
@@ -22,7 +23,7 @@ namespace phlex::experimental {
   // Registering user functions
 
   template <typename T>
-  class graph_proxy {
+  class phlex_core_EXPORT graph_proxy {
   public:
     template <typename>
     friend class graph_proxy;

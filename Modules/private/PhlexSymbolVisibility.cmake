@@ -1,6 +1,6 @@
 include(GenerateExportHeader)
 
-function(phlex_handle_symbol_visibility target)
+function(phlex_apply_symbol_visibility target)
   set(EXPORT_HEADER "${CMAKE_CURRENT_BINARY_DIR}/include/${target}_export.hpp")
   set(EXPORT_MACRO_NAME "${target}_EXPORT")
 
@@ -9,6 +9,12 @@ function(phlex_handle_symbol_visibility target)
     EXPORT_FILE_NAME ${EXPORT_HEADER}
     EXPORT_MACRO_NAME ${EXPORT_MACRO_NAME}
     STATIC_DEFINE "${target}_STATIC_DEFINE"
+  )
+
+  set_target_properties(${target}
+    PROPERTIES
+      CXX_VISIBILITY_PRESET hidden
+      VISIBILITY_INLINES_HIDDEN ON
   )
 
   target_include_directories(${target}

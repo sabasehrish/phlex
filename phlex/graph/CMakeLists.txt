@@ -1,4 +1,5 @@
 add_library(phlex_graph SHARED serializer_node.cpp)
+phlex_apply_symbol_visibility(phlex_graph)
 target_include_directories(phlex_graph PRIVATE ${PROJECT_SOURCE_DIR})
 target_link_libraries(
   phlex_graph PRIVATE Boost::boost TBB::tbb phlex::utilities fmt::fmt
