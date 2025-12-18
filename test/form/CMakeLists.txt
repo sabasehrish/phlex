@@ -2,12 +2,14 @@
 
 if(FORM_USE_ROOT_STORAGE)
   add_subdirectory(data_products)
+
   cet_test(
     WriteVector
     SOURCE
     writer.cpp
     toy_tracker.cpp
     LIBRARIES
+    mock_phlex
     form
     form_test_data_products
     TEST_ARGS
@@ -20,6 +22,7 @@ if(FORM_USE_ROOT_STORAGE)
     SOURCE
     reader.cpp
     LIBRARIES
+    mock_phlex
     form
     form_test_data_products
     TEST_ARGS
@@ -30,16 +33,3 @@ if(FORM_USE_ROOT_STORAGE)
     )
   target_include_directories(ReadVector PRIVATE ${PROJECT_SOURCE_DIR}/form)
 endif()
-
-cet_test(
-  job:form_module
-  HANDBUILT
-  TEST_EXEC
-  phlex
-  TEST_ARGS
-  -c
-  ${CMAKE_CURRENT_SOURCE_DIR}/form_test.jsonnet
-  TEST_PROPERTIES
-  ENVIRONMENT
-  "PHLEX_PLUGIN_PATH=${PROJECT_BINARY_DIR}:${CMAKE_BINARY_DIR}/form"
-  )
