@@ -165,149 +165,62 @@ setup_spack_environment() {
     return 1
 }
 
-# Activate Spack environment (optional)
-activate_spack_environment() {
+# Activate the Phlex Spack environment
+activate_phlex_spack_environment() {
     # Only proceed if Spack is available
     if ! command -v spack &> /dev/null; then
+        error "Spack command not found. 'setup_spack_environment' should have handled this."
         return 1
     fi
 
-    # Check if environment is already active
-    local env_status
-    env_status="$(spack env status 2>/dev/null || echo "No active environment")"
-    if [[ "$env_status" != *"No active"* ]]; then
-        log "Spack environment already active: $(spack env status)"
+    # Define the local spack environment path and source yaml
+    local local_env_path="${WORKSPACE_ROOT}/.phlex-spack-env"
+    local spack_yaml_path="${PHLEX_SOURCE_DIR}/ci/spack.yaml"
+
+    # Check if the environment is already active
+    if [[ -n "${SPACK_ENV:-}" && "$(readlink -f "$SPACK_ENV")" == "$(readlink -f "$local_env_path")" ]]; then
+        log "Phlex Spack environment already active: $SPACK_ENV"
         return 0
     fi
 
-    # Try to use Spack MPD if available (multi-project workflows)
-    if [[ "$BUILD_MODE" == "multi-project" ]] && spack commands 2>/dev/null | grep -q "^mpd$"; then
-        log "Attempting to select project with spack mpd..."
-        if spack mpd select . 2>/dev/null; then
-            log "Successfully selected project with spack mpd"
-        else
-            warn "spack mpd selection failed - will try standard environment activation"
-        fi
+    # If the environment doesn't exist, create it from the CI configuration
+    if [[ ! -f "$local_env_path/spack.yaml" ]]; then
+        log "Local Phlex Spack environment not found. Creating it at: $local_env_path"
+        log "This will use the configuration from ${spack_yaml_path}"
+        spack env create -d "$local_env_path" "$spack_yaml_path" || {
+            error "Failed to create Spack environment from ${spack_yaml_path}"
+            return 1
+        }
+        log "Spack environment created. Concretizing packages..."
+        spack -e "$local_env_path" concretize || {
+            error "Failed to concretize Spack environment."
+            return 1
+        }
+        success "Spack environment created successfully."
+        warn "Dependencies are not yet installed. Run 'spack -e ${local_env_path} install' to install them."
+        warn "This may take a significant amount of time."
     fi
 
-    # Try user-specified environment
-    if [[ -n "${PHLEX_SPACK_ENV}" ]]; then
-        log "Activating Spack environment: ${PHLEX_SPACK_ENV}"
-        if spack env activate "${PHLEX_SPACK_ENV}" 2>/dev/null; then
-            success "Activated Spack environment: ${PHLEX_SPACK_ENV}"
-            return 0
-        else
-            warn "Failed to activate Spack environment: ${PHLEX_SPACK_ENV}"
-        fi
-    fi
-
-    # Try to activate local environment if it exists
-    local local_env="${WORKSPACE_ROOT}/local"
-    if [[ -d "$local_env" && -f "$local_env/spack.yaml" ]]; then
-        log "Activating local Spack environment: ${local_env}"
-        if spack env activate "${local_env}" 2>/dev/null; then
-            success "Activated local Spack environment"
-            return 0
-        else
-            warn "Failed to activate local Spack environment"
-        fi
-    fi
-
-    # No environment activated, but Spack is available
-    log "No Spack environment activated - using default Spack setup"
-    return 0
-}
-
-# Check for required build tools
-check_build_tools() {
-    local missing_critical=false
-    local missing_optional=false
-
-    log "Checking for required build tools..."
-
-    # Critical tools
-    if ! command -v cmake &> /dev/null; then
-        error "CMake not found - required for building"
-        error "  Install via:"
-        error "    - System: apt install cmake / dnf install cmake / brew install cmake"
-        error "    - Spack: spack install cmake && spack load cmake"
-        missing_critical=true
-    else
-        log "Found cmake: $(command -v cmake)"
-
-        # Check CMake version
-        local cmake_version
-        cmake_version=$(cmake --version | head -n1 | sed 's/cmake version //')
-        local major minor
-        major=$(echo "${cmake_version}" | cut -d. -f1)
-        minor=$(echo "${cmake_version}" | cut -d. -f2)
-
-        if [[ ${major} -lt 3 ]] || [[ ${major} -eq 3 && ${minor} -lt 24 ]]; then
-            warn "CMake version ${cmake_version} may be too old (minimum 3.24 recommended)"
-        else
-            log "CMake version ${cmake_version} meets requirements (≥3.24)"
-        fi
-    fi
-
-    if ! command -v gcc &> /dev/null; then
-        error "GCC compiler not found - required for building"
-        error "  Install via:"
-        error "    - System: apt install gcc g++ / dnf install gcc gcc-c++"
-        error "    - Spack: spack install gcc && spack load gcc"
-        missing_critical=true
-    else
-        log "Found gcc: $(command -v gcc)"
-    fi
-
-    if ! command -v g++ &> /dev/null; then
-        error "G++ compiler not found - required for building"
-        error "  Install via:"
-        error "    - System: apt install g++ / dnf install gcc-c++"
-        error "    - Spack: spack install gcc && spack load gcc"
-        missing_critical=true
-    else
-        log "Found g++: $(command -v g++)"
-    fi
-
-    # Optional but recommended tools
-    if ! command -v ninja &> /dev/null; then
-        warn "Ninja not found - builds will use make (slower)"
-        warn "  Install via: apt install ninja-build / spack install ninja"
-        missing_optional=true
-    else
-        log "Found ninja: $(command -v ninja)"
-    fi
-
-    # Coverage tools (optional)
-    if ! command -v gcov &> /dev/null; then
-        warn "gcov not found - code coverage features will not work"
-        missing_optional=true
-    else
-        log "Found gcov: $(command -v gcov)"
-    fi
-
-    if ! command -v lcov &> /dev/null; then
-        warn "lcov not found - HTML coverage reports will not be available"
-        missing_optional=true
-    fi
-
-    if ! command -v gcovr &> /dev/null; then
-        warn "gcovr not found - XML coverage reports will not be available"
-        missing_optional=true
-    fi
-
-    # Return status
-    if [[ "$missing_critical" == true ]]; then
-        error "Critical build tools are missing - cannot build project"
+    # Activate the environment
+    log "Activating Phlex Spack environment: ${local_env_path}"
+    if ! spack env activate "$local_env_path"; then
+        error "Failed to activate Spack environment at '${local_env_path}'"
         return 1
     fi
 
-    if [[ "$missing_optional" == false ]]; then
-        success "All build tools found"
-    else
-        log "Optional tools missing - some features may be unavailable"
-    fi
+    success "Phlex Spack environment activated."
+    log "All required tools (compilers, CMake, etc.) are now available from Spack."
+    return 0
+}
 
+
+# Check for required build tools (DEPRECATED - Spack handles this now)
+check_build_tools() {
+    if ! command -v spack &> /dev/null; then
+      error "Spack is required but not found in the environment."
+      return 1
+    fi
+    log "Build tool check is handled by the Spack environment."
     return 0
 }
 
@@ -326,7 +239,7 @@ main_setup() {
     setup_spack_environment
 
     # Try to activate Spack environment (optional)
-    activate_spack_environment
+    activate_phlex_spack_environment
 
     # Set CMake-specific variables for consistent builds
     export CMAKE_EXPORT_COMPILE_COMMANDS=ON
